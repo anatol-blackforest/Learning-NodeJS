@@ -1,0 +1,96 @@
+<!DOCTYPE>
+<html>
+    <head>
+        <meta charset='utf-8' />
+        <title>Index</title>
+         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div class="row"> 
+            <div class="panel-body">
+                <div class="col-md-4">
+                    <form role="form" class="form-horizontal" method="POST", action="/addItem">
+                        <div class="form-group">
+                            <label for="name" class="col-md-2 control-label">Name</label>
+                            <div class="col-md-10">
+                                <input type="text" id="name" class="form-control" name="name" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="price" class="col-md-2 control-label">Price</label>
+                            <div class="col-md-10">
+                                <input type="text" id="price" class="form-control" name="price" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-offset-2 col-md-10">
+                               <input type="button" value="Add" id="addButton" class="btn btn-default" />
+                               <input type="submit" value="send">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-md-8">
+                    <table class="table table-striped table-bordered table-condensed">
+                        <thead>
+                            <tr>
+                                <td>Product name</td>
+                                <td>Price</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                <button id="btnGet" class="btn btn-success">Get Data</button>
+            </div>
+            </div>           
+        </div>
+
+        <script>
+            var xhr = new XMLHttpRequest();
+            var productName;
+            var productPrice;
+            window.onload = function(){
+                var btnGet = document.getElementById('btnGet');            
+                var btnAdd = document.getElementById('addButton')
+                btnGet.onclick = getData;
+                btnAdd.onclick =addData;
+            };
+
+            function getData(){
+                xhr.open("GET", "http://localhost:8080/all");
+                xhr.onreadystatechange = function(){
+                    if(xhr.readyState == 4 && xhr.status == 200){                        
+                        var tableBody = document.getElementsByTagName('tbody')[0];                        
+                        var data = JSON.parse(xhr.responseText);
+                        var str = "";
+                        console.log(data);
+                        for (var i = 0; i < data.length; i++) {
+                            str = `<tr><td>${data[i].name}</td><td>${data[i].price}</td></tr>`;   
+                            tableBody.innerHTML += str;      
+                        }                        
+                    }
+                }
+                xhr.send();
+            };
+            function addData(product){
+                xhr.open("POST", "http://localhost:8080/addItem");
+                xhr.onreadystatechange = function(){
+                    if(xhr.readyState == 4 && xhr.status == 200){                        
+                        var tableBody = document.getElementsByTagName('tbody')[0];                        
+                        var data = JSON.parse(xhr.responseText);
+                        var str = "";
+                        str = `<tr><td>${data.name}</td><td>${data.price}</td></tr>`;   
+                        tableBody.innerHTML += str;                                                      
+                    }
+                }
+                productName = document.getElementById('name').value;
+                productPrice = document.getElementById('price').value;
+                console.log(`{'name':'${productName}', 'price':'${productPrice}'}`)
+                xhr.send(`name=${productName}&price=${productPrice}`);
+            }
+        </script>
+    </body>
+</html>
